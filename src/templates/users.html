@@ -1,0 +1,24 @@
+{% extends 'default.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="users-container">
+        <h1 class="users-header">Все пользователи</h1>
+        <div class="users">
+            {% for author in authors.all %}
+            {% if request.user.author != author %}
+                <div class="users-item" id="user-{{ author.id }}">
+                    <img class="users-item_photo" src="{{author.profile_photo.url}}" alt="" width="100px" height="100px">
+                    <span class="users-item_nickname">{{author.nickname}}</span>
+                    <form action="{% url 'chat_create' to_author_id=author.id %}" method="post">
+                        {% csrf_token %}
+                        <input type="text" class="users-item_input" name="message">
+                        <button style="color: black;">Написать</button>
+                    </form>
+                    
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}

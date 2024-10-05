@@ -1,0 +1,25 @@
+{% extends 'default.html' %}
+{% load static %}
+{% block side_block %}
+{% endblock %}
+{% block content %}
+    <div>
+        {{room_id|json_script:"room-id"}}
+        {{author|json_script:"author"}}
+        <form class="create-message-form" action="" class="message-create-form" enctype="xml/text">
+            {% csrf_token %}            
+            <input id="chat-message-input" type="text" name="message" placeholder="Введите сообщение" required>
+            <input id="chat-message-submit" type="submit" value="Отправить">
+        </form>
+        <hr style="margin: 20px 0;">
+        <div class="messages" id="personel-messages">
+            {% for message in chat.messages.all %}
+                <div class="messages-message {% if message.author == request.user.author %}my-message{% endif %}">
+                    <img class="message-avatar" src="{{message.author.profile_photo.url}}" alt="avatar">
+                    <span class="message-text"><p class="message-author">{{message.author}}</p><p class="message-date">{{message.creation_date|date:'d-m-y:H:i'}}</p>{{ message.text }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="{% static 'js/detail_chat.js' %}"></script>
+{% endblock %}

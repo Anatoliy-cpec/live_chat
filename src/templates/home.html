@@ -1,0 +1,34 @@
+{% extends 'default.html' %}
+{% load static %}
+
+{% block content %}
+    <div>
+        <div class="main-profile">
+            <div class="main-profile_image" style="background-image: url('{{ author.profile_photo.url }}');">
+            </div>
+            <div class="profile-info-block">
+                <p class="info-block_name">{{author.nickname}}</p>
+            </div>
+            <a href="{% url 'edit_author' pk=author.id %}" class="info-block_edit" style="writing-mode: vertical-rl;">Изменить</a>
+
+        </div>
+        <div class="main-rooms-info">
+            <span>Мои комнаты</span>
+        </div>
+        <hr style="margin: 15px auto">
+        <div class="main-rooms">
+            <div class="main-rooms_item room-create">
+                <a href="{% url 'chat_room_create'%}" class="rooms-item_info">Создать комнату</a>
+            </div>
+            {% for room in rooms %}
+                {% if request.user.author in room.users.all or request.user == room.owner %}
+                    <div class="main-rooms_item">
+                            <a href="{% url 'chat_room_detail' pk=room.id %}" class="rooms-item_info">{{ room.name }}</a>
+                            {% if author.user == room.owner %}
+                            <a href="{% url 'chat_room_edit' pk=room.id %}"><img src="{% static 'images/edit.png' %}" alt="edit" class="rooms-item_edit"></a>
+                            {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+{% endblock %}

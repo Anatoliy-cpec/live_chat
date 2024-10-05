@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_tags %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Document</title>
+</head>
+<header>
+    <nav class="header-nav">
+        <a href="#"><img src="{{request.user.author.profile_photo.url}}" alt="image" width="50px" height="50px"></a>
+        <ul class="nav-ul">
+            <li><a href="{% url 'home' %}">{{request.user.author.nickname}}</a></li>
+            <li><a href="{% url 'users' %}">пользователи</a></li>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'account_logout' %}">Выйти</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+<body>
+    <div class="container">
+        <div class="chat-list">
+            <p>Чаты</p>
+            <hr style="margin: 15px 0;">
+            <ul class="chatlist_ul">
+                {% for chat in chats %}
+                    {% if user.author == chat.user_from or user.author == chat.user_to %}
+                        <li class="chatlist_ul__li"><a href="{% url 'chat_detail' pk=chat.id %}">{{chat}}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <p>Группы</p>
+            <hr style="margin: 15px 0;">
+            <ul class="chatlist_ul">
+                {% if rooms %}
+                    {% for room in rooms %}
+                        {% if request.user.author in room.users.all or request.user == room.owner %}
+                            <li class="chatlist_ul__li"><a href="{% url 'chat_room_detail' pk=room.id %}">{{room}}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <li class="chatlist_ul__li"><a href="#">Нет комнат</a></li>
+                {% endif %}
+                
+            </ul>
+            {% block side_block %}
+            {% endblock %}
+        </div>
+        <div class="chat-window">
+            {% block content %}  
+            {% endblock %}
+        </div>
+    </div>
+</body>
+</html>

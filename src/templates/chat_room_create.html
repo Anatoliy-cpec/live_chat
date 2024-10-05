@@ -1,0 +1,60 @@
+{% extends 'default.html' %}
+{% load static %}
+
+{% block content %}
+
+{{author_id|json_script:"author_id"}}
+{%if not author.user.owner%}
+
+
+<div class="room-creation">
+    
+    <label for="author-select">Пользователи:</label>
+    <select id="author-select" multiple>
+        {% for author in authors %}
+            {% if author != request.user.author %}
+                <option value="{{ author.id }}">{{ author.nickname }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <label for="room-name-input">Название комнаты:</label>
+    <input type="text" id="room-name-input" placeholder="Новая комната">
+    <button id="room-create" onclick="createChatroom()">Создать комнату</button>
+</div>
+<script>
+
+    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    async function createChatroom(roomName) {
+        const newName = document.getElementById('room-name-input').value;
+        const author_id = JSON.parse(document.getElementById('author_id').textContent);
+        const authorSelect = document.getElementById('author-select');
+        const selectedAuthors = Array.from(authorSelect.selectedOptions).map(option => option.value);
+        
+        if (newName && selectedAuthors.length > 0) {
+            const response = await fetch(`http://127.0.0.1:8000/api/chatrooms/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ name: newName, users: selectedAuthors, owner: author_id })
+            });
+            if (response.ok) {
+                alert('Chatroom created successfully');
+                location.replace('http://127.0.0.1:8000/')
+            } else {
+                console.log(response);
+                alert('Error creating chatroom');
+            }
+        } else {
+            alert('Please fill in all fields');
+        }
+    }
+</script>
+{% else %}
+<div class="room-creation">
+    <p>Вы не можете создать новые комнаты, поскольку у вас уже есть комната.</p>
+</div>
+{% endif %}
+
+{% endblock %}

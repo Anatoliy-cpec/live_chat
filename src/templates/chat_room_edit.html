@@ -1,0 +1,91 @@
+{% extends 'default.html' %}
+{% load static %}
+
+{% block content %}
+
+{{room_id|json_script:"room-id"}}
+
+{% if author.user == room.owner %}
+
+<div class="chatroom-container"></div>
+    <div class="chatroom-header">
+        <span>{{room.name}}</span>
+        <div  id="chatroom-header_edit">
+            <!-- buttons -->
+        </div>
+    </div>
+    <div id="chatroom-users">
+    </div>
+    
+</div>
+
+{% endif %}
+
+
+
+
+<script>
+    const roomName = JSON.parse(document.getElementById('room-id').textContent);
+    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    // Функция для получения списка комнат
+    async function fetchChatroom() {
+        const response = await fetch(`http://127.0.0.1:8000/api/chatrooms/${roomName}/`);
+        const chatroom = await response.json();
+        const chatroomUsers = document.getElementById('chatroom-users');
+        const chatroomHeaderDiv = document.getElementById('chatroom-header_edit');
+        chatroomUsers.innerHTML = `
+        
+        `;
+        chatroomHeaderDiv.innerHTML = `
+            <input type="text" id="room-name-input" value="${chatroom.name}">
+            <button onclick="updateChatroom(${chatroom.id})" class='room-button_edit'>Change name</button>
+            <button onclick="deleteChatroom(${chatroom.id})" class='room-button_delete'>Delete</button>
+
+        `;
+    }
+
+    // Функция для удаления комнаты
+    async function deleteChatroom(roomName) {
+    const response = await fetch(`http://127.0.0.1:8000/api/chatrooms/${roomName}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    });
+    if (response.ok) {
+        alert('Chatroom deleted');
+        fetchChatroom();
+    } else {
+        alert('Error deleting chatroom');
+    }
+}
+    // Функция для обновления комнаты
+    async function updateChatroom(roomName) {
+        const newName = document.getElementById('room-name-input').value;
+        if (newName) {
+            const response = await fetch(`http://127.0.0.1:8000/api/chatrooms/${roomName}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ name: newName })
+            });
+            if (response.ok) {
+                alert('Chatroom updated');
+                location.replace('http://127.0.0.1:8000/')
+            } else {
+                console.log(response);
+                alert('Error updating chatroom');
+            }
+        }
+    }
+
+    // Получаем список комнат при загрузке страницы
+    document.addEventListener('DOMContentLoaded', (event) => {
+        fetchChatroom();
+    });
+</script>
+</div>
+
+{% endblock %}

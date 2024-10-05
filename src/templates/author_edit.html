@@ -1,0 +1,22 @@
+{% extends 'default.html' %}
+{% load static %}
+
+{% block content %}
+    <div>
+        <div class="container">
+            <form action="" method="post" class="profile-edit-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{form.errors}}
+                    <span>Новый никнейм:</span>
+                    {{form.nickname}}
+                    <hr style="margin: 10px 0;">
+                    <span>Новое фото:</span>
+                    {{form.profile_photo}}
+                    <hr style="margin: 10px 0;">
+                    <button class="profile-form_confirm" type="submit">Сохранить</button>
+            </form>
+        </div>
+        
+        
+    </div>
+{% endblock %}
